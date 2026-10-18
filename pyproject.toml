@@ -12,6 +12,7 @@ dependencies = [
     "openai",
     "requests",
     "python-dotenv",
+    "tzdata",
 ]
 
 [project.scripts]

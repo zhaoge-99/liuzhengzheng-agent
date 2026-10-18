@@ -40,6 +40,16 @@ aiden
 pipx install --force D:\AgentProject
 ```
 
+## 开发测试
+
+项目包含基础单元测试，覆盖工具参数校验、工作区路径限制、时区工具、结构化工具错误以及会话隔离：
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+每个 CLI 进程创建一个独立的 `AgentSession`，会话对象持有状态机和对话上下文，避免将不同并发会话的数据放在模块级全局变量中。工具执行统一写入审计日志，并对未知工具、非法参数和执行异常返回包含 `status`、`code`、`message` 的 JSON 错误对象。
+
 首次使用时，在项目目录或用户配置位置准备 `.env`，至少配置：
 
 ```env
@@ -118,11 +128,17 @@ $env:MODEL_NAME = "gpt-4o-mini"
 $env:MODEL_BASE_URL = "https://api.openai.com/v1"
 $env:AGENT_MAX_ITERATIONS = "10"
 $env:AGENT_REQUEST_TIMEOUT = "30"
+$env:AGENT_MAX_CONCURRENT = "4"
+$env:AGENT_QUEUE_TIMEOUT = "10"
 ```
 
 `MODEL_BASE_URL` 只能使用不包含账号、密码、查询参数或片段的 HTTP(S) 地址。
 `AGENT_MAX_ITERATIONS` 限制单次请求的模型/工具往返次数（1-30），
 `AGENT_REQUEST_TIMEOUT` 限制单次模型请求超时时间（5-120 秒）。
+`AGENT_MAX_CONCURRENT` 限制当前进程同时运行的模型/工具工作流数量，
+默认值为 4；`AGENT_QUEUE_TIMEOUT` 限制请求等待并发槽位的时间，默认值为 10 秒。
+超过容量的请求会被拒绝，不会无限堆积。单个 `AgentSession` 同时只能执行一个请求，
+避免同一会话的对话上下文和状态机发生竞争。
 启动时会提示：用户输入和必要的工具结果可能发送到配置的模型服务。
 如果模型请求期间按下 `Ctrl+C`，当前请求会被取消并返回提示，不会显示完整 traceback。
 
@@ -156,6 +172,18 @@ $env:AGENT_REQUEST_TIMEOUT = "30"
 - `update_task`：更新任务状态和执行备注，支持多步骤任务持续跟踪。
 - `get_active_tasks`：读取未完成任务，支持中断后恢复上下文。
 - `run_quality_checks`：统一运行语法检查、测试、可选 linter 和类型检查。
+
+## 并发控制
+
+Agent 使用进程级并发闸门模拟高并发系统的“限流/排队”部分：
+
+```text
+请求 -> 并发槽位 -> 模型与工具循环 -> 释放槽位
+              \-> 超时则拒绝
+```
+
+这能保护模型 API、文件工具和当前进程资源，但它不是跨服务器的分布式限流。
+多实例部署时需要在网关或 Redis 中实现共享配额；高耗时任务还应进一步接入消息队列。
 
 文件相关工具只允许访问 `AGENT_WORKSPACE` 目录；除明确确认的 `apply_patch` 外均为只读操作。
 工具调用只能使用 `Execute_Tool.py` 中注册的白名单函数，不能执行任意 Python、Shell 或删除文件操作。
