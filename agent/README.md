@@ -72,6 +72,8 @@ $env:MODEL_NAME = "gpt-4o-mini"
 $env:MODEL_BASE_URL = "https://api.openai.com/v1"
 ```
 
+安装本产品过程中会要求用户配置环境变量。如果未配置，可以在项目目录下手动创建 `.env` 文件，程序会自动将 `.env` 文件中的内容加载到环境变量中。如果系统环境变量和 `.env` 文件中都配置了同一个变量，系统环境变量的优先级最高。
+
 其中：
 
 - `MODEL_PROVIDER` 支持 `openai-compatible`、`anthropic` 和 `gemini`；
