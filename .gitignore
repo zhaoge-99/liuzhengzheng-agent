@@ -1,0 +1,37 @@
+# Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE and editor files
+.idea/
+.vscode/
+
+# Local configuration and secrets
+.env
+**/.env
+!.env.example
+**/.env.*
+!**/.env.example
+
+# Agent-local state and audit data
+.agent_tasks.json
+**/.agent_tasks.json
+.agent_audit.jsonl
+**/.agent_audit.jsonl
+*.log
+
+# Build and packaging output
+build/
+dist/
+*.egg-info/
+
+# Operating-system files
+.DS_Store
+Thumbs.db

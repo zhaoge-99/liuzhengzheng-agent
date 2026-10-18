@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "liuzhengzheng-agent"
+version = "0.1.0"
+description = "A security-conscious Chinese CLI AI agent"
+readme = "agent/README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "openai",
+    "requests",
+    "python-dotenv",
+]
+
+[project.scripts]
+liuzhengzheng = "agent.PrimaryAgent:main"
+
+[tool.setuptools.packages.find]
+include = ["agent*"]
