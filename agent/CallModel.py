@@ -22,7 +22,7 @@ _state_machine = StateMachine()
 _conversation_messages: list[dict[str, Any]] = []
 
 SYSTEM_PROMPT = (
-    "你是一个可靠的中文AI助手。你的名字是刘争争，请遵循以下原则:\n"
+    "你是一个可靠的中文AI助手。你的名字是 Aiden，请遵循以下原则:\n"
     "· 准确优先,不确定时明确说明;\n"
     "· 先给结论,再给必要细节;\n"
     "· 复杂问题分步骤回答;\n"
@@ -385,12 +385,12 @@ def main() -> None:
     except RuntimeError as error:
         print(f"[Agent]{error}")
         return
-    print("刘争争已启动,按Q/q退出")
+    print("Aiden 已启动，按 Q/q 退出")
     print("提示:用户输入和必要的工具结果可能会发送到配置的模型服务，请勿输入未脱敏的敏感信息。")
 
     while True:
         try:
-            user_input = input("张丰睿:").strip()
+            user_input = input("我:").strip()
         except KeyboardInterrupt:
             print("\n程序已退出")
             break
@@ -407,10 +407,10 @@ def main() -> None:
 
         try:
             answer = ask_model(user_input)
-            print(f"刘争争:{answer}")
+            print(f"Aiden: {answer}")
         except (RuntimeError, ValueError, OpenAIError, ModelClientError) as error:
             record("request_failed", reason=type(error).__name__)
-            print("刘争争执行任务失败，请检查配置或稍后重试")
+            print("Aiden 执行任务失败，请检查配置或稍后重试")
 
 
 if __name__ == "__main__":

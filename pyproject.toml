@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "liuzhengzheng-agent"
+name = "aiden-agent"
 version = "0.1.0"
 description = "A security-conscious Chinese CLI AI agent"
 readme = "agent/README.md"
@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-liuzhengzheng = "agent.PrimaryAgent:main"
+aiden = "agent.PrimaryAgent:main"
 
 [tool.setuptools.packages.find]
 include = ["agent*"]

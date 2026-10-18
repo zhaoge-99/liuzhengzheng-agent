@@ -22,7 +22,7 @@ python -m pip install .
 安装完成后即可直接启动：
 
 ```powershell
-liuzhengzheng
+aiden
 ```
 
 更推荐使用 `pipx` 安装，使 Agent 和其他 Python 工具保持隔离：
@@ -31,7 +31,7 @@ liuzhengzheng
 python -m pip install --user pipx
 python -m pipx ensurepath
 pipx install D:\AgentProject
-liuzhengzheng
+aiden
 ```
 
 更新代码后重新安装：

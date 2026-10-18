@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Aiden Agent 安装和使用指南">
+  <title>Aiden Agent 安装指南</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #62708a;
+      --line: #dfe6f1;
+      --surface: #ffffff;
+      --soft: #f5f8fc;
+      --brand: #2563eb;
+      --brand-dark: #1746ad;
+      --code: #111827;
+      --success: #087443;
+      font-family: Inter, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(135deg, #eef5ff 0%, #f8fbff 45%, #eefcf7 100%);
+      line-height: 1.7;
+    }
+    header {
+      padding: 72px 24px 88px;
+      color: #fff;
+      background: linear-gradient(120deg, #173d91, #2563eb 58%, #16805d);
+    }
+    .hero, main { max-width: 1040px; margin: 0 auto; }
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #cfe0ff;
+      font-size: .85rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { line-height: 1.25; }
+    h1 { max-width: 760px; margin: 0 0 18px; font-size: clamp(2.2rem, 6vw, 4.3rem); }
+    .lead { max-width: 760px; margin: 0; color: #e7efff; font-size: 1.15rem; }
+    main { padding: 36px 24px 80px; }
+    .notice, section {
+      margin: 0 0 24px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 12px 30px rgba(23, 32, 51, .06);
+    }
+    .notice {
+      border-color: #b9d2ff;
+      background: #f4f8ff;
+    }
+    h2 { margin: 0 0 14px; font-size: 1.55rem; }
+    h3 { margin: 24px 0 8px; font-size: 1.08rem; }
+    p { margin: 8px 0; }
+    .muted { color: var(--muted); }
+    .steps {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+    .number {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--brand);
+      font-weight: 800;
+    }
+    .step strong { display: block; margin: 8px 0 2px; }
+    .code-wrap {
+      position: relative;
+      margin: 12px 0 18px;
+    }
+    pre {
+      overflow-x: auto;
+      margin: 0;
+      padding: 18px 20px;
+      border-radius: 12px;
+      color: #e5edff;
+      background: var(--code);
+      font: .92rem/1.65 Consolas, "Cascadia Code", monospace;
+    }
+    code {
+      padding: 2px 6px;
+      border-radius: 5px;
+      color: #1746ad;
+      background: #eaf1ff;
+      font-family: Consolas, monospace;
+    }
+    pre code { padding: 0; color: inherit; background: transparent; }
+    button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 10px;
+      border: 1px solid #53627c;
+      border-radius: 7px;
+      color: #fff;
+      background: #27344d;
+      cursor: pointer;
+    }
+    button:hover { background: #3b4d70; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--soft);
+    }
+    .card h3 { margin-top: 0; }
+    .checklist { padding-left: 22px; }
+    .checklist li { margin: 7px 0; }
+    .success { color: var(--success); font-weight: 700; }
+    a { color: var(--brand-dark); font-weight: 700; }
+    footer {
+      padding: 26px 24px 42px;
+      color: var(--muted);
+      text-align: center;
+    }
+    @media (max-width: 600px) {
+      header { padding: 48px 20px 58px; }
+      main { padding: 24px 16px 56px; }
+      section, .notice { padding: 21px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <p class="eyebrow">Aiden Agent</p>
+      <h1>从下载安装到直接输入命令启动</h1>
+      <p class="lead">本指南面向第一次使用的用户，介绍如何在 Windows 上安装、配置和运行 Aiden Agent。</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="notice">
+      <strong>安全提醒：</strong>
+      Agent 会把经过处理的用户请求和必要的工具结果发送到配置的模型服务。请使用你自己的 API Key，并不要输入未脱敏的密码、私钥或业务机密。
+    </div>
+
+    <section>
+      <h2>一、准备环境</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Python</h3>
+          <p>安装 Python 3.11 或更高版本，并在安装时勾选 <code>Add Python to PATH</code>。</p>
+        </div>
+        <div class="card">
+          <h3>Git</h3>
+          <p>用于从 GitHub 获取项目代码。也可以下载 ZIP 压缩包，但 Git 更方便升级。</p>
+        </div>
+        <div class="card">
+          <h3>模型 API</h3>
+          <p>准备一个兼容的模型服务 API Key，例如 DeepSeek 或其他 OpenAI 兼容服务。</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>二、安装 Agent</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="number">1</span>
+          <div>
+            <strong>安装 pipx</strong>
+            <p class="muted">pipx 会为命令行工具创建独立环境，不会污染系统 Python。</p>
+            <div class="code-wrap">
+              <pre><code>python -m pip install --user pipx
+python -m pipx ensurepath</code></pre>
+              <button data-copy="python -m pip install --user pipx
+python -m pipx ensurepath">复制</button>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <span class="number">2</span>
+          <div>
+            <strong>重新打开 PowerShell</strong>
+            <p class="muted">让刚加入 PATH 的 pipx 命令生效。</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="number">3</span>
+          <div>
+            <strong>从 GitHub 安装</strong>
+            <div class="code-wrap">
+              <pre><code>pipx install https://github.com/zhaoge-99/liuzhengzheng-agent.git</code></pre>
+              <button data-copy="pipx install https://github.com/zhaoge-99/liuzhengzheng-agent.git">复制</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>三、配置模型服务</h2>
+      <p>下面以 DeepSeek 为例。请把 API Key 替换成你自己的值，不要把 Key 提交到 GitHub。</p>
+      <p class="muted">
+        <strong>MODEL_PROVIDER 可选值：</strong>
+        <code>openai-compatible</code> 用于 DeepSeek、OpenAI 以及其他兼容 OpenAI API 的服务；
+        <code>anthropic</code> 用于 Anthropic Claude；
+        <code>gemini</code> 用于 Google Gemini。
+        选择的 Provider 必须与对应的 API 地址和模型名称匹配。
+      </p>
+      <div class="code-wrap">
+        <pre><code>[Environment]::SetEnvironmentVariable("MODEL_PROVIDER", "openai-compatible", "User")</code></pre>
+        <button data-copy='[Environment]::SetEnvironmentVariable("MODEL_PROVIDER", "openai-compatible", "User")'>复制</button>
+      </div>
+      <div class="code-wrap">
+        <pre><code>[Environment]::SetEnvironmentVariable("MODEL_API_KEY", "你的API Key", "User")</code></pre>
+        <button data-copy='[Environment]::SetEnvironmentVariable("MODEL_API_KEY", "你的API Key", "User")'>复制</button>
+      </div>
+      <div class="code-wrap">
+        <pre><code>[Environment]::SetEnvironmentVariable("MODEL_NAME", "deepseek-chat", "User")</code></pre>
+        <button data-copy='[Environment]::SetEnvironmentVariable("MODEL_NAME", "deepseek-chat", "User")'>复制</button>
+      </div>
+      <div class="code-wrap">
+        <pre><code>[Environment]::SetEnvironmentVariable("MODEL_BASE_URL", "https://api.deepseek.com", "User")</code></pre>
+        <button data-copy='[Environment]::SetEnvironmentVariable("MODEL_BASE_URL", "https://api.deepseek.com", "User")'>复制</button>
+      </div>
+      <p class="muted">配置完成后请关闭并重新打开终端。也可以把配置写入项目的 <code>.env</code> 文件，但真实的 <code>.env</code> 不应提交到 Git。</p>
+    </section>
+
+    <section>
+      <h2>四、启动和第一次对话</h2>
+      <div class="code-wrap">
+        <pre><code>aiden</code></pre>
+        <button data-copy="aiden">复制</button>
+      </div>
+      <p>看到启动提示后，直接输入问题，例如：</p>
+      <div class="code-wrap">
+        <pre><code>你好，请介绍一下 Python 的环境变量</code></pre>
+        <button data-copy="你好，请介绍一下 Python 的环境变量">复制</button>
+      </div>
+      <p class="success">退出程序：输入 <code>/q</code>、<code>/quit</code> 或按 Ctrl+C。</p>
+    </section>
+
+    <section>
+      <h2>五、常用命令</h2>
+      <div class="grid">
+        <div class="card"><code>/help</code><p>显示帮助信息。</p></div>
+        <div class="card"><code>/workspace</code><p>查看当前工作区。</p></div>
+        <div class="card"><code>/status</code><p>查看 Agent 状态。</p></div>
+        <div class="card"><code>/tasks</code><p>查看未完成任务。</p></div>
+        <div class="card"><code>/clear</code><p>清空当前对话。</p></div>
+        <div class="card"><code>/q</code><p>退出 Agent。</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>六、让 Agent 修改代码</h2>
+      <ol class="checklist">
+        <li>描述要修改的文件和目标。</li>
+        <li>Agent 先生成补丁并预览变更。</li>
+        <li>Agent 校验补丁，等待你在终端确认。</li>
+        <li>确认后才会应用修改。</li>
+        <li>应用后自动进行语法检查和质量验证。</li>
+        <li>验证失败时会报告原因，并尝试回滚补丁。</li>
+      </ol>
+      <p>不要把工具参数中的 <code>confirm=true</code> 当作用户授权；真正的写操作必须经过终端确认。</p>
+    </section>
+
+    <section>
+      <h2>七、升级、卸载和故障排查</h2>
+      <h3>升级到 GitHub 最新版本</h3>
+      <div class="code-wrap">
+        <pre><code>pipx upgrade aiden-agent</code></pre>
+        <button data-copy="pipx upgrade aiden-agent">复制</button>
+      </div>
+      <h3>卸载</h3>
+      <div class="code-wrap">
+        <pre><code>pipx uninstall aiden-agent</code></pre>
+        <button data-copy="pipx uninstall aiden-agent">复制</button>
+      </div>
+      <h3>常见问题</h3>
+      <ul class="checklist">
+        <li><strong>提示未配置 API Key：</strong>关闭终端后重新打开，确认变量名是 <code>MODEL_API_KEY</code>。</li>
+        <li><strong>网络连接失败：</strong>检查 <code>MODEL_BASE_URL</code>、代理和模型服务是否可访问。</li>
+        <li><strong>模型不存在：</strong>把 <code>MODEL_NAME</code> 改为服务商账户实际支持的模型名称。</li>
+        <li><strong>命令找不到：</strong>重新运行 <code>python -m pipx ensurepath</code> 并重启终端。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>项目地址</h2>
+      <p><a href="https://github.com/zhaoge-99/liuzhengzheng-agent" target="_blank" rel="noopener">GitHub 项目仓库</a></p>
+      <p class="muted">源码、更新说明和安全审查文档都在仓库中。</p>
+    </section>
+  </main>
+
+  <footer>Aiden Agent · 安全使用自己的配置和 API Key</footer>
+  <script>
+    document.querySelectorAll("[data-copy]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy);
+          const original = button.textContent;
+          button.textContent = "已复制";
+          setTimeout(() => { button.textContent = original; }, 1200);
+        } catch {
+          button.textContent = "请手动复制";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
