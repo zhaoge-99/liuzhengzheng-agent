@@ -387,7 +387,7 @@ def main() -> None:
         return
     print("Aiden 已启动，按 Q/q 退出")
     print("提示:用户输入和必要的工具结果可能会发送到配置的模型服务，请勿输入未脱敏的敏感信息。")
-    logo ="""
+    logo = r"""
               /\
              /  \
             / /\ \
