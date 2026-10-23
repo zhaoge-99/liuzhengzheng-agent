@@ -35,16 +35,17 @@ class ModelClient(ABC):
 
     @abstractmethod
     def complete(
-        self,
-        messages: list[dict[str, Any]],
-        tools: list[dict[str, Any]],
-        model: str,
+            self,
+            messages: list[dict[str, Any]],
+            tools: list[dict[str, Any]],
+            model: str,
     ) -> ModelResponse:
         raise NotImplementedError
 
 
 def _valid_endpoint(value: str, default: str) -> str:
     endpoint = (value or default).strip().rstrip("/")
+    # parsed是一个对象
     parsed = urlparse(endpoint)
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
         raise RuntimeError("模型服务地址必须是有效的 HTTP(S) URL")
@@ -72,10 +73,10 @@ class OpenAICompatibleClient(ModelClient):
         self.client = OpenAI(api_key=api_key, base_url=base_url, timeout=timeout)
 
     def complete(
-        self,
-        messages: list[dict[str, Any]],
-        tools: list[dict[str, Any]],
-        model: str,
+            self,
+            messages: list[dict[str, Any]],
+            tools: list[dict[str, Any]],
+            model: str,
     ) -> ModelResponse:
         try:
             response = self.client.chat.completions.create(
@@ -106,10 +107,10 @@ class AnthropicClient(ModelClient):
         self.base_url = base_url
 
     def complete(
-        self,
-        messages: list[dict[str, Any]],
-        tools: list[dict[str, Any]],
-        model: str,
+            self,
+            messages: list[dict[str, Any]],
+            tools: list[dict[str, Any]],
+            model: str,
     ) -> ModelResponse:
         system_parts = [
             str(message.get("content", ""))
@@ -219,10 +220,10 @@ class GeminiClient(ModelClient):
         self.base_url = base_url
 
     def complete(
-        self,
-        messages: list[dict[str, Any]],
-        tools: list[dict[str, Any]],
-        model: str,
+            self,
+            messages: list[dict[str, Any]],
+            tools: list[dict[str, Any]],
+            model: str,
     ) -> ModelResponse:
         system_parts = [
             str(message.get("content", ""))
@@ -327,19 +328,30 @@ class GeminiClient(ModelClient):
         return {"role": "user", "parts": [{"text": message.get("content", "")}]}
 
 
+'''
+create_model_client函数的作用是检测系统环境变量是否配置了
+MODEL_PROVIDER、
+MODEL_API_KEY和MODEL_NAME，
+并根据配置创建相应的模型客户端实例。
+它会根据不同的模型提供商（如openai-compatible、anthropic或gemini）返回对应的客户端对象和模型名称。
+如果配置不正确或缺失，它会抛出RuntimeError异常，提示用户进行相应的配置。m
+'''
+
+
 def create_model_client(timeout: int) -> tuple[ModelClient, str]:
+    # 系统环境变量中如果没有MODEL_PROVIDER，则os.getenv("MODEL_PROVIDER", "openai-compatible")会返回默认值"openai-compatible"
     provider = os.getenv("MODEL_PROVIDER", "openai-compatible").strip().lower()
     api_key = os.getenv("MODEL_API_KEY", "").strip()
     if not api_key:
         raise RuntimeError("未配置 MODEL_API_KEY")
 
     model = (
-        os.getenv("MODEL_NAME")
-        or {
-            "openai-compatible": "gpt-4o-mini",
-            "anthropic": "claude-3-5-sonnet-latest",
-            "gemini": "gemini-2.0-flash",
-        }.get(provider, "")
+            os.getenv("MODEL_NAME")
+            or {
+                "openai-compatible": "gpt-4o-mini",
+                "anthropic": "claude-3-5-sonnet-latest",
+                "gemini": "gemini-2.0-flash",
+            }.get(provider, "")
     ).strip()
     if not model:
         raise RuntimeError("未配置 MODEL_NAME")

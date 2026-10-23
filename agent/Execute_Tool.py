@@ -498,6 +498,7 @@ def execute_tool(tool_name: str, arguments_json: str) -> str:
     不使用eval,也不允许模型调用任意Python函数。
     只能调用TOOL_FUNCTIONS中注册过的工具。
     """
+    # time.monotonic()返回一个单调递增的时间值(以秒为单位)，用于测量时间间隔
     started_at = time.monotonic()
     record("tool_execution_started", tool=tool_name, arguments=arguments_json)
 

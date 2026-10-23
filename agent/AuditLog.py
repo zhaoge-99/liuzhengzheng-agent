@@ -7,8 +7,8 @@ import threading
 from pathlib import Path
 from typing import Any
 
-
 _audit_error_count = 0
+# 创建一个进程锁
 _audit_error_lock = threading.Lock()
 _BEIJING_TIMEZONE = dt.timezone(dt.timedelta(hours=8), name="Asia/Shanghai")
 _SENSITIVE_KEY_PATTERN = re.compile(
@@ -22,6 +22,7 @@ def _log_path() -> Path:
     return workspace / ".agent_audit.jsonl"
 
 
+# 备用路径
 def _fallback_log_path() -> Path | None:
     configured_path = os.getenv("AGENT_AUDIT_FALLBACK_PATH")
     if not configured_path or not configured_path.strip():
@@ -48,6 +49,7 @@ def get_audit_error_count() -> int:
         return _audit_error_count
 
 
+# 对工具名称和参数进行递归脱敏处理,防止敏感信息泄露
 def _redact(value: Any) -> Any:
     if isinstance(value, dict):
         return {
@@ -74,8 +76,10 @@ def record(event: str, **details: Any) -> None:
     entry = {
         "timestamp": dt.datetime.now(_BEIJING_TIMEZONE).isoformat(),
         "event": event,
+        # _redact()函数对details字典进行递归脱敏处理,_redact(details)是脱敏后的details字典
         "details": _redact(details),
     }
+    # serialized_entry是已经经过序列化的json字符串,ensure_ascill=False表示不转义非ascii字符
     serialized_entry = json.dumps(entry, ensure_ascii=False) + "\n"
     try:
         with _log_path().open("a", encoding="utf-8") as stream:
