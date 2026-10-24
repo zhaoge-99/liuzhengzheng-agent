@@ -1,8 +1,4 @@
-from agent import CallModel
-
-
-def main() -> None:
-    CallModel.main()
+from agent.cli import main
 
 
 if __name__ == "__main__":

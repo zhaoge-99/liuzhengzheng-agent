@@ -79,7 +79,8 @@ def record(event: str, **details: Any) -> None:
         # _redact()函数对details字典进行递归脱敏处理,_redact(details)是脱敏后的details字典
         "details": _redact(details),
     }
-    # serialized_entry是已经经过序列化的json字符串,ensure_ascill=False表示不转义非ascii字符
+    # serialized_entry是已经经过序列化的json字符串,、
+    # ensure_ascill=False表示不转义非ascii字符,原有中文保留下来
     serialized_entry = json.dumps(entry, ensure_ascii=False) + "\n"
     try:
         with _log_path().open("a", encoding="utf-8") as stream:

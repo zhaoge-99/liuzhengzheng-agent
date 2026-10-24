@@ -14,11 +14,8 @@ __pycache__/
 .vscode/
 
 # Local configuration and secrets
-.env
-**/.env
-!.env.example
-**/.env.*
-!**/.env.example
+aiden_env
+**/aiden_env
 
 # Agent-local state and audit data
 .agent_tasks.json

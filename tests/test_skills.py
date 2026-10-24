@@ -35,3 +35,24 @@ class SkillsTest(unittest.TestCase):
         result = json.loads(Skills.read_text_file("note.txt"))
         self.assertEqual(result["content"], "hello")
 
+    def test_read_config_file_allows_sample_and_redacts_keys(self) -> None:
+        file_path = Path(self.temp_dir.name) / "aiden_env.example"
+        file_path.write_text("MODEL_API_KEY=example-secret\n", encoding="utf-8")
+
+        result = json.loads(Skills.read_config_file("aiden_env.example"))
+
+        self.assertIn("[REDACTED]", result["content"])
+        self.assertNotIn("example-secret", result["content"])
+
+    def test_patch_validation_protects_aiden_env(self) -> None:
+        patch = (
+            "diff --git a/aiden_env b/aiden_env\n"
+            "--- a/aiden_env\n"
+            "+++ b/aiden_env\n"
+            "@@ -1 +1 @@\n"
+            "-MODEL_API_KEY=old\n"
+            "+MODEL_API_KEY=new\n"
+        )
+
+        with self.assertRaises(ValueError):
+            Skills._validate_patch_paths(patch)

@@ -1,6 +1,6 @@
 # Agent
 
-这是一个带安全工具白名单的 DeepSeek 命令行 Agent。
+这是一个带安全工具白名单、支持多种模型服务的中文命令行 Agent。
 
 ## 安装
 
@@ -50,7 +50,43 @@ python -m unittest discover -s tests -v
 
 每个 CLI 进程创建一个独立的 `AgentSession`，会话对象持有状态机和对话上下文，避免将不同并发会话的数据放在模块级全局变量中。工具执行统一写入审计日志，并对未知工具、非法参数和执行异常返回包含 `status`、`code`、`message` 的 JSON 错误对象。
 
-首次使用时，在项目目录或用户配置位置准备 `.env`，至少配置：
+## 源码模块结构
+
+```text
+agent/
+├── PrimaryAgent.py          # 安装命令的稳定入口
+├── cli.py                   # 命令行循环和内建命令
+├── session.py               # 单次会话、模型/工具往返与并发接入
+├── configuration.py         # aiden_env 加载和配置校验
+├── prompts.py               # 系统提示、输入校验及上下文脱敏
+├── patch_workflow.py        # 补丁预览、确认、应用、验证和回滚流程
+├── model_clients/
+│   ├── base.py               # 统一客户端接口、响应类型和公共转换
+│   ├── openai_compatible.py  # OpenAI 兼容服务适配器
+│   ├── anthropic.py          # Anthropic 消息与工具格式适配
+│   ├── gemini.py             # Gemini 内容与函数调用格式适配
+│   └── factory.py            # 根据环境配置选择模型客户端
+├── tooling/
+│   ├── definitions.py        # 提供给模型的工具名称和参数 schema
+│   ├── registry.py           # 工具名到 Python 函数的白名单映射
+│   └── executor.py           # 参数校验、调用和统一错误/审计处理
+├── skill_modules/
+│   ├── core.py               # 文本校验、工作区根目录与安全路径
+│   ├── basic.py              # 计算、天气、时间和运行信息
+│   ├── files.py              # 文件读取、搜索和 Python 语法检查
+│   ├── project.py            # 项目结构、符号和危险代码分析
+│   ├── quality.py            # 测试、密钥扫描、linter 和类型检查
+│   ├── patches.py            # Git 补丁校验、应用、预览和回滚
+│   ├── tasks.py              # 持久化任务清单
+│   └── web.py                # 公开网页读取
+├── AgentState.py            # Agent 状态机
+├── Concurrency.py           # 进程内并发闸门
+└── AuditLog.py              # 脱敏审计日志
+```
+
+`CallModel.py`、`Execute_Tool.py` 和 `Skills.py` 保留为兼容入口：旧代码仍可按原来的模块名导入；新功能应放入上面对应职责的模块。主要调用方向是 `cli → session → tooling → skill_modules`，模型通信由 `session → model_clients` 负责，补丁写入流程单独由 `patch_workflow` 管理。
+
+首次使用时，在项目目录或用户配置位置准备 `aiden_env`，至少配置：
 
 ```env
 MODEL_PROVIDER=openai-compatible
@@ -59,7 +95,7 @@ MODEL_NAME=deepseek-chat
 MODEL_BASE_URL=https://api.deepseek.com
 ```
 
-不要把包含真实 API Key 的 `.env` 打包、提交或发送给其他人。分发时应提供 `.env.example`，让每位使用者自行配置自己的 Key。
+不要把包含真实 API Key 的 `aiden_env` 打包、提交或发送给其他人。分发时应提供 `aiden_env.example`，让每位使用者自行配置自己的 Key。
 
 交互过程中可使用 `/workspace`、`/status`、`/tasks`、`/clear`、`/help` 和 `/quit` 快捷命令。
 
@@ -70,10 +106,10 @@ MODEL_BASE_URL=https://api.deepseek.com
 可以复制配置模板：
 
 ```powershell
-Copy-Item agent\.env.example agent\.env
+Copy-Item agent\aiden_env.example aiden_env
 ```
 
-然后打开 `.env`，填入自己的值。程序启动时会自动读取 `agent/.env`；PowerShell 用户也可以直接设置环境变量：
+然后打开项目根目录中的 `aiden_env`，填入自己的值。程序启动时会依次从当前目录、项目根目录和 `agent` 目录读取名为 `aiden_env` 的文件；PowerShell 用户也可以直接设置环境变量：
 
 ```powershell
 $env:MODEL_PROVIDER = "openai-compatible"
@@ -82,7 +118,7 @@ $env:MODEL_NAME = "gpt-4o-mini"
 $env:MODEL_BASE_URL = "https://api.openai.com/v1"
 ```
 
-安装本产品过程中会要求用户配置环境变量。如果未配置，可以在项目目录下手动创建 `.env` 文件，程序会自动将 `.env` 文件中的内容加载到环境变量中。如果系统环境变量和 `.env` 文件中都配置了同一个变量，系统环境变量的优先级最高。
+安装本产品过程中会要求用户配置环境变量。如果未配置，可以在项目目录下手动创建 `aiden_env` 文件，程序会自动将文件内容加载到环境变量中。如果系统环境变量和 `aiden_env` 中都配置了同一个变量，系统环境变量的优先级最高。
 
 其中：
 
@@ -90,7 +126,7 @@ $env:MODEL_BASE_URL = "https://api.openai.com/v1"
 - `MODEL_API_KEY` 是必需的；
 - `MODEL_NAME` 是模型名称；
 - `MODEL_BASE_URL` 用于覆盖模型服务地址；
-- 不要把真实 `.env` 提交到 Git 或分享给其他人；
+- 不要把真实 `aiden_env` 提交到 Git 或分享给其他人；
 - API Key 不要写入 Python 源码、README 或工具参数。
 
 ## 启动

@@ -5,8 +5,8 @@ MODEL_NAME=
 MODEL_BASE_URL=
 
 # Optional workspace configuration
-AGENT_WORKSPACE="D:\aiden_workspace"
-
+AGENT_WORKSPACE="D:/aiden_workspace"
+AGENT_AUDIT_FALLBACK_PATH="D:/aiden_workspace/.agent_audit_fallback.jsonl"
 # Optional execution limits
 AGENT_MAX_ITERATIONS=10
 AGENT_REQUEST_TIMEOUT=30

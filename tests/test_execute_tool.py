@@ -28,3 +28,21 @@ class ExecuteToolTest(unittest.TestCase):
     def test_success_preserves_tool_payload(self) -> None:
         self.assertEqual(Execute_Tool.execute_tool("calculate", '{"expression":"2 + 3"}'), "5")
 
+    def test_tool_catalog_matches_registered_functions_and_permissions(self) -> None:
+        names = [
+            tool["function"]["name"]
+            for tool in Execute_Tool.TOOL_DEFINITIONS
+        ]
+        registered = set(Execute_Tool.TOOL_FUNCTIONS)
+        permitted = (
+            Execute_Tool.TOOL_PERMISSIONS["read"]
+            | Execute_Tool.TOOL_PERMISSIONS["write"]
+        )
+
+        self.assertEqual(len(names), len(set(names)))
+        self.assertEqual(set(names), registered)
+        self.assertEqual(registered, permitted)
+        self.assertFalse(
+            Execute_Tool.TOOL_PERMISSIONS["read"]
+            & Execute_Tool.TOOL_PERMISSIONS["write"]
+        )
